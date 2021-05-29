@@ -4,8 +4,11 @@ FROM php:7.4-fpm
 #
 #COPY ./conf.d /usr/local/etc/php/conf.d
 
-ARG user
-ARG uid
+#ARG user
+#ARG uid
+
+ARG USER_ID
+ARG GROUP_ID
 
 RUN apt-get update && apt-get install -y \
         git \
@@ -30,14 +33,16 @@ RUN apt-get update && apt-get install -y \
 RUN wget https://getcomposer.org/installer -O - -q \
         | php -- --install-dir=/bin --filename=composer --quiet
 
-RUN useradd -G www-data,root -u $uid -d /home/$user $user
-RUN mkdir -p /home/$user/.composer && \
-            chown -R $user:$user /home/$user
+#RUN useradd -G www-data,root -u $uid -d /home/$user $user
+#RUN mkdir -p /home/$user/.composer && \
+#            chown -R $user:$user /home/$user
 
-ADD ./conf.d/php.ini /usr/local/etc/php/php.ini
+RUN usermod -u ${USER_ID} www-data && groupmod -g ${GROUP_ID} www-data
+
+#ADD ./conf.d/php.ini /usr/local/etc/php/php.ini
 
 WORKDIR /var/www
 #права на исполнение
-RUN chown -R www-data:www-data /var/www
-
+#RUN chown -R www-data:www-data /var/www
+USER "${USER_ID}:${GROUP_ID}"
 USER $user

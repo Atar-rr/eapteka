@@ -1,6 +1,4 @@
 version: "3.7"
-#networks:
-#  laravel:
 
 services:
   nginx:
@@ -16,8 +14,8 @@ services:
   php-fpm:
     build:
       args:
-        user: sergey
-        uid: 1000
+        USER_ID: 1000
+        GROUP_ID: 1000
       context: docker/php-fpm
     volumes:
       - ./:/var/www
