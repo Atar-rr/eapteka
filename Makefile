@@ -1,7 +1,7 @@
 init: down build up
 
 build: docker-build
-up: mysql-down docker-up
+up: docker-up
 down: docker-down
 restart: down up
 

@@ -13,7 +13,6 @@ class DrugsController extends Controller
     public function index(Request $request)
     {
         #TODO Два поиска или фильтр(экран домой/основной/переход на поиск по дейст.вещ?(данные уже есть на клиенте))
-        $activeSubstance = '';
         $q = $request->input('q');
         $q = '+' . $q . '*';
         #TODO сервис
@@ -22,23 +21,17 @@ class DrugsController extends Controller
             ->whereRaw('MATCH(prep_full) AGAINST(? IN BOOLEAN MODE)', [$q])
             ->get()
             ->all();
-//        current($drugSearch)
-//        foreach ($drugSearch as $drug) {
-//            $activeSubstance = $drug->as_name_rus;
-//            break;
-//        }
+
         $activeSubstance = current($drugSearch) !== false ? current($drugSearch)->as_name_rus : '';
 
-//        $q = '+' . $activeSubstance . '*';
         $drugRecommended = $query->whereRaw('MATCH(as_name_primary) AGAINST(? IN BOOLEAN MODE)', [$activeSubstance])->get();
-
 
         return response()->json([
             'success' => !empty($drugSearch),
             'response' => [
                 'active_substance' => $activeSubstance,
-                'drug_recommended' => $drugRecommended,
-                'drug_search' => $drugSearch,
+//                'drug_recommended' => $drugRecommended,
+//                'drug_search' => $drugSearch,
             ],
         ]);
     }
