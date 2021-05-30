@@ -12,8 +12,10 @@ class DrugsController extends Controller
     # чтобы если в запросе это есть, то не выдывать другие лекарства
     public function index(Request $request)
     {
+
         #TODO Два поиска или фильтр(экран домой/основной/переход на поиск по дейст.вещ?(данные уже есть на клиенте))
-        $q = $request->input('q');
+        $q = urldecode($request->input('q'));
+
         $q = '+' . $q . '*';
         #TODO сервис
         $query = Drugs::query();
@@ -27,12 +29,9 @@ class DrugsController extends Controller
         $drugRecommended = $query->whereRaw('MATCH(as_name_primary) AGAINST(? IN BOOLEAN MODE)', [$activeSubstance])->get();
 
         return response()->json([
-            'success' => !empty($drugSearch),
-            'response' => [
                 'active_substance' => $activeSubstance,
-//                'drug_recommended' => $drugRecommended,
-//                'drug_search' => $drugSearch,
-            ],
+                'drug_recommended' => $drugRecommended,
+                'drug_search' => $drugSearch,
         ]);
     }
 }
