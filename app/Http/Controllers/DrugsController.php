@@ -21,17 +21,28 @@ class DrugsController extends Controller
         $query = Drugs::query();
         $drugSearch = $query
             ->whereRaw('MATCH(prep_full) AGAINST(? IN BOOLEAN MODE)', [$q])
-            ->get()
-            ->all();
+            ->get();
 
-        $activeSubstance = current($drugSearch) !== false ? current($drugSearch)->as_name_rus : '';
+        $activeSubstance = current($drugSearch->all()) !== false ? current($drugSearch->all())->as_name_rus : '';
 
         $drugRecommended = $query->whereRaw('MATCH(as_name_primary) AGAINST(? IN BOOLEAN MODE)', [$activeSubstance])->get();
 
         return response()->json([
                 'active_substance' => $activeSubstance,
-                'drug_recommended' => $drugRecommended,
-                'drug_search' => $drugSearch,
+                'drug_recommended' => $this->filterFields($drugRecommended),
+                'drug_search' => $this->filterFields($drugSearch),
         ]);
+    }
+
+    private function filterFields(Collection $collect): array
+    {
+        foreach ($collect as $item) {
+            $item = collect($item);
+            $result[] = $item
+                ->except([
+                    'created_at', 'updated_at', 'amount', 'packing_id', 'desc_id', 'prep_id', 'as_id', 'dosage_form_id'
+                ]);
+        }
+        return $result ?? [];
     }
 }
